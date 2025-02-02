@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 import os
-import requests
+import logging
 from dotenv import load_dotenv
 import chess  # Import the chess library
-import logging
+from stockfish import Stockfish
 
 load_dotenv()
 
@@ -11,7 +11,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
-STOCKFISH_API_URL = "https://chess-api.com/v1"  # Updated API URL
+# Initialize Stockfish
+stockfish = Stockfish(path="/usr/games/stockfish")
 
 @app.route('/')
 def index():
@@ -19,32 +20,29 @@ def index():
 
 @app.route('/get_move', methods=['POST'])
 def get_move():
-    fen = request.json.get('fen')
-    board = chess.Board(fen)  # Initialize the board with the given FEN
-    
-    # Call Chess API
-    headers = {'Content-Type': 'application/json'}  # Use JSON content type
-    data = {
-        'fen': board.fen(),
-        'depth': 12,  # Set desired depth
-        'maxThinkingTime': 50  # Set max thinking time in ms
-    }
-
     try:
-        response = requests.post(STOCKFISH_API_URL, headers=headers, json=data)  # Send JSON data
-        response.raise_for_status()  # Raise an error for bad responses
-        logging.debug(f"API Response Status Code: {response.status_code}")  # Log status code
-        logging.debug(f"API Response Content: {response.content}")  # Log raw response content
+        fen = request.json.get('fen')
+        board = chess.Board(fen)
         
-        try:
-            data = response.json()
-            logging.debug(f"Parsed API Response: {data}")  # Log parsed JSON
-            return jsonify(data)
-        except ValueError as e:
-            logging.error(f"JSON parsing error: {e}")
-            return jsonify({'error': 'Invalid JSON response from API'}), 500
-    except requests.exceptions.RequestException as e:
+        # Set up Stockfish with the current position
+        stockfish.set_position([])  # Clear any previous position
+        stockfish.set_fen_position(fen)
+        
+        # Get the best move
+        best_move = stockfish.get_best_move()
+        
+        if best_move:
+            return jsonify({
+                'move': best_move,
+                'score': stockfish.get_evaluation()
+            })
+        else:
+            return jsonify({'error': 'No valid moves found'}), 400
+            
+    except Exception as e:
+        logging.error(f"Error in get_move: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    port = int(os.environ.get('PORT', 5002))
+    app.run(host='0.0.0.0', port=port, debug=True)
