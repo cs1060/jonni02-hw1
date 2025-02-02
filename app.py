@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import os
 import logging
 from dotenv import load_dotenv
-import chess  # Import the chess library
+import chess
 from stockfish import Stockfish
 
 load_dotenv()
@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
-# Initialize Stockfish
-stockfish = Stockfish(path="/usr/games/stockfish")
+# Initialize Stockfish with default path
+stockfish = Stockfish()
 
 @app.route('/')
 def index():
@@ -45,4 +45,4 @@ def get_move():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5002))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port)
