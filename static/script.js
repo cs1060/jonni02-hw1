@@ -3,7 +3,18 @@ var game = new Chess();
 var $status = $('#status');
 var $advice = $('#advice');
 
-// Dark mode functionality
+// Theme handling
+function initTheme() {
+    // Set dark mode as default if no theme is stored
+    if (!localStorage.getItem('theme')) {
+        localStorage.setItem('theme', 'dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+        const theme = localStorage.getItem('theme');
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+}
+
 function setTheme(isDark) {
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -14,13 +25,8 @@ function toggleTheme() {
     setTheme(!isDark);
 }
 
-// Initialize theme from localStorage or system preference
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-    setTheme(savedTheme === 'dark');
-} else {
-    setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
-}
+// Initialize theme on page load
+initTheme();
 
 function onDragStart(source, piece, position, orientation) {
     if (game.game_over()) return false;
