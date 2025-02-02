@@ -27,11 +27,14 @@ def get_move():
         board = chess.Board(fen)
         
         # Call Stockfish API
-        response = requests.post(STOCKFISH_API_URL, json={
+        params = {
             'fen': fen,
-            'depth': 15,  # Reasonable depth for quick responses
+            'depth': '10',
             'mode': 'bestmove'
-        })
+        }
+        
+        response = requests.get(STOCKFISH_API_URL, params=params)
+        logging.debug(f"API Response: {response.text}")
         
         if response.status_code != 200:
             logging.error(f"Stockfish API error: {response.text}")
@@ -39,9 +42,10 @@ def get_move():
             
         data = response.json()
         best_move = data.get('bestmove')
-        score = data.get('score', 0)
         
         if best_move:
+            # Convert score from centipawns to a more readable format
+            score = data.get('evaluation', 0) / 100.0  # Convert centipawns to pawns
             return jsonify({
                 'move': best_move,
                 'score': score
