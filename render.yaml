@@ -2,23 +2,10 @@ services:
   - type: web
     name: chess-game
     env: python
-    buildCommand: |
-      # Install Stockfish from Ubuntu repository
-      sudo apt-get update
-      sudo apt-get install -y stockfish
-      # Create a known location for Stockfish
-      sudo mkdir -p /opt/stockfish
-      sudo cp $(which stockfish) /opt/stockfish/stockfish
-      sudo chmod +x /opt/stockfish/stockfish
-      # Verify installation
-      /opt/stockfish/stockfish --version
-      # Install Python dependencies
-      pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
       - key: PORT
         value: 10000
-      - key: STOCKFISH_PATH
-        value: /opt/stockfish/stockfish
