@@ -11,6 +11,7 @@ load_dotenv()
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
+stockfish = None  # Initialize as global variable
 
 # Find Stockfish path
 def find_stockfish():
@@ -25,10 +26,11 @@ def find_stockfish():
         
         for path in paths:
             try:
-                subprocess.run([path], capture_output=True, timeout=1)
+                result = subprocess.run([path], capture_output=True, timeout=1)
                 logging.info(f"Found Stockfish at: {path}")
                 return path
-            except (subprocess.SubprocessError, FileNotFoundError):
+            except (subprocess.SubprocessError, FileNotFoundError) as e:
+                logging.debug(f"Failed to find Stockfish at {path}: {str(e)}")
                 continue
                 
         raise FileNotFoundError("Stockfish not found in common locations")
@@ -36,13 +38,20 @@ def find_stockfish():
         logging.error(f"Error finding Stockfish: {str(e)}")
         raise
 
-try:
-    stockfish_path = find_stockfish()
-    stockfish = Stockfish(path=stockfish_path)
-    logging.info("Stockfish initialized successfully")
-except Exception as e:
-    logging.error(f"Failed to initialize Stockfish: {str(e)}")
-    # Continue without Stockfish - we'll handle this in the API endpoint
+def init_stockfish():
+    global stockfish
+    try:
+        stockfish_path = find_stockfish()
+        stockfish = Stockfish(path=stockfish_path)
+        logging.info("Stockfish initialized successfully")
+        return True
+    except Exception as e:
+        logging.error(f"Failed to initialize Stockfish: {str(e)}")
+        stockfish = None
+        return False
+
+# Try to initialize Stockfish at startup
+init_stockfish()
 
 @app.route('/')
 def index():
@@ -50,9 +59,12 @@ def index():
 
 @app.route('/get_move', methods=['POST'])
 def get_move():
+    global stockfish
     try:
-        if not stockfish:
-            return jsonify({'error': 'Stockfish not available'}), 503
+        if stockfish is None:
+            # Try to initialize again if it failed before
+            if not init_stockfish():
+                return jsonify({'error': 'Stockfish not available'}), 503
             
         fen = request.json.get('fen')
         if not fen:
