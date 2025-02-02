@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
-STOCKFISH_API_URL = "https://stockfish.online/api/stockfish.php"
+STOCKFISH_API_URL = "https://stockfish.online/api/v2/stockfish.php"
 
 @app.route('/')
 def index():
@@ -26,14 +26,15 @@ def get_move():
             
         board = chess.Board(fen)
         
-        # Call Stockfish API
-        params = {
+        # Call Stockfish API v2
+        data = {
             'fen': fen,
-            'depth': '10',
+            'depth': 15,
+            'time': 1000,  # 1 second think time
             'mode': 'bestmove'
         }
         
-        response = requests.get(STOCKFISH_API_URL, params=params)
+        response = requests.post(STOCKFISH_API_URL, json=data)
         logging.debug(f"API Response: {response.text}")
         
         if response.status_code != 200:
@@ -41,11 +42,14 @@ def get_move():
             return jsonify({'error': 'Failed to get move from Stockfish API'}), 503
             
         data = response.json()
-        best_move = data.get('bestmove')
+        if not data.get('success'):
+            return jsonify({'error': data.get('data', 'Unknown error')}), 400
+            
+        move_data = data.get('data', {})
+        best_move = move_data.get('bestmove')
+        score = move_data.get('score', 0)
         
         if best_move:
-            # Convert score from centipawns to a more readable format
-            score = data.get('evaluation', 0) / 100.0  # Convert centipawns to pawns
             return jsonify({
                 'move': best_move,
                 'score': score
