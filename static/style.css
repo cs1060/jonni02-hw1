@@ -3,6 +3,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 :root {
@@ -50,6 +51,10 @@ body {
     display: flex;
     flex-direction: column;
     transition: background-color 0.3s, color 0.3s;
+    overflow: hidden;
+    position: fixed;
+    height: 100%;
+    width: 100%;
 }
 
 .container {
@@ -59,6 +64,10 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Header Styles */
@@ -106,10 +115,14 @@ h1 {
     padding: 2rem;
     border-radius: 12px;
     box-shadow: var(--card-shadow);
+    touch-action: none;
 }
 
 #board {
     width: 650px !important;
+    max-width: min(80vw, 600px);
+    aspect-ratio: 1;
+    margin: 0 auto;
 }
 
 /* Side Panel */
@@ -248,48 +261,54 @@ h1 {
     }
 }
 
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .board-section {
+        max-width: 95vw;
+    }
+
+    .theme-toggle {
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+    }
+
+    #status {
+        font-size: 1rem;
+    }
+}
+
 /* Theme Toggle Button */
 .theme-toggle {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: var(--btn-bg);
+    background: none;
     border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    transition: background-color 0.3s;
-}
-
-.theme-toggle:hover {
-    background: var(--status-bg);
-}
-
-.light-icon {
-    display: none;
-}
-
-[data-theme="dark"] .light-icon {
-    display: block;
-}
-
-[data-theme="dark"] .dark-icon {
-    display: none;
+    font-size: 24px;
+    color: var(--text-color);
+    z-index: 1000;
+    padding: 10px;
+    touch-action: manipulation;
 }
 
 /* Footer */
 .footer {
     text-align: center;
     padding: 20px;
-    margin-top: 30px;
+    margin-top: auto;
     font-family: 'Arial', sans-serif;
     color: var(--text-color);
     opacity: 0.8;
+    width: 100%;
 }
 
 .footer p {
@@ -303,4 +322,10 @@ footer {
     font-size: 0.9rem;
     margin-top: 2rem;
     padding: 1rem;
+}
+
+/* Chess pieces */
+.piece-417db {
+    touch-action: none;
+    cursor: grab;
 }
