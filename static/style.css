@@ -16,6 +16,8 @@
     --check-bg: #ffebee;
     --check-text: #B71C1C;
     --check-border: #f44336;
+    --primary-color: #3498db;
+    --primary-hover: #2980b9;
 }
 
 [data-theme="dark"] {
@@ -35,6 +37,8 @@
     --check-bg: #B71C1C;
     --check-text: #ffffff;
     --check-border: #f44336;
+    --primary-color: #3498db;
+    --primary-hover: #2980b9;
 }
 
 /* Base styles */
@@ -130,48 +134,35 @@ body {
 /* Game Controls */
 .game-controls {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 10px;
+    margin-bottom: 20px;
     width: 100%;
-    max-width: 650px;
+    max-width: 600px;
     justify-content: center;
 }
 
 .control-btn {
-    padding: 1rem 2rem;
+    padding: 10px 20px;
+    font-size: 1rem;
     border: none;
-    border-radius: 6px;
-    font-size: 1.1rem;
-    font-weight: 500;
+    border-radius: 5px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    min-width: 150px;
-    background: var(--btn-bg);
-    color: var(--btn-text);
+    background-color: var(--text-color);
+    color: var(--background-color);
+    transition: all 0.3s ease;
 }
 
 .control-btn:hover {
-    transform: translateY(-2px);
-    background: var(--status-bg);
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 .control-btn.primary {
-    background: var(--primary-btn-bg);
-    color: var(--primary-btn-text);
+    background-color: var(--primary-color);
 }
 
 .control-btn.primary:hover {
-    background: var(--primary-btn-bg);
-    opacity: 0.9;
-}
-
-#resetBtn {
-    background: var(--btn-bg);
-    color: var(--btn-text);
-}
-
-#resetBtn:hover {
-    background: var(--status-bg);
+    background-color: var(--primary-hover);
 }
 
 /* Status and Advice Sections */
@@ -297,7 +288,13 @@ footer {
         font-size: 20px;
     }
 
-    #status {
-        font-size: 1rem;
+    .game-controls {
+        flex-direction: column;
+        max-width: 95vw;
+    }
+
+    .control-btn {
+        width: 100%;
+        padding: 12px 20px;
     }
 }
