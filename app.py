@@ -16,8 +16,19 @@ stockfish = None  # Initialize as global variable
 # Find Stockfish path
 def find_stockfish():
     try:
-        # Try common paths
+        # First try environment variable
+        env_path = os.getenv('STOCKFISH_PATH')
+        if env_path:
+            try:
+                result = subprocess.run([env_path], capture_output=True, timeout=1)
+                logging.info(f"Found Stockfish at env path: {env_path}")
+                return env_path
+            except (subprocess.SubprocessError, FileNotFoundError) as e:
+                logging.debug(f"Failed to find Stockfish at env path {env_path}: {str(e)}")
+        
+        # Try common paths as fallback
         paths = [
+            '/opt/stockfish/stockfish',  # Our custom location
             '/usr/games/stockfish',
             '/usr/bin/stockfish',
             '/usr/local/bin/stockfish',
@@ -33,7 +44,7 @@ def find_stockfish():
                 logging.debug(f"Failed to find Stockfish at {path}: {str(e)}")
                 continue
                 
-        raise FileNotFoundError("Stockfish not found in common locations")
+        raise FileNotFoundError("Stockfish not found in any location")
     except Exception as e:
         logging.error(f"Error finding Stockfish: {str(e)}")
         raise
@@ -43,6 +54,8 @@ def init_stockfish():
     try:
         stockfish_path = find_stockfish()
         stockfish = Stockfish(path=stockfish_path)
+        # Test that it works
+        stockfish.get_parameters()
         logging.info("Stockfish initialized successfully")
         return True
     except Exception as e:
