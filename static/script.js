@@ -53,9 +53,9 @@ function updateStatus() {
     var moveColor = game.turn() === 'b' ? 'Black' : 'White';
     
     if (game.in_checkmate()) {
-        status = 'Game over, ' + moveColor + ' is in checkmate.';
+        status = 'Game over, <span class="turn">' + moveColor + '</span> is in checkmate.';
     } else if (game.in_draw()) {
-        status = 'Game over, drawn position';
+        status = 'Game over, <span class="turn">drawn position</span>';
     } else {
         if (game.in_check()) {
             status = '<span class="turn check">' + moveColor + '</span> to move (in check)';
@@ -70,7 +70,13 @@ function updateStatus() {
 }
 
 function getStockfishAdvice() {
-    $advice.html('Analyzing position...');
+    const $loadingDots = $('<span>').addClass('loading-dots').text('...');
+    $advice.html('Analyzing position').append($loadingDots);
+    
+    // Add timeout to the fetch
+    const timeoutDuration = 5000; // 5 seconds
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
     
     fetch('/get_move', {
         method: 'POST',
@@ -79,20 +85,46 @@ function getStockfishAdvice() {
         },
         body: JSON.stringify({
             fen: game.fen()
-        })
+        }),
+        signal: controller.signal
     })
-    .then(response => response.json())
+    .then(response => {
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error || 'Failed to get move suggestion');
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.move) {
             const source = data.move.slice(0, 2);
             const target = data.move.slice(2, 4);
             highlightBestMove(source, target);
-            $advice.html('Best move: ' + source + ' to ' + target + '<br>Evaluation: ' + data.eval);
+            
+            let scoreText = '';
+            if (typeof data.score === 'number') {
+                const absScore = Math.abs(data.score / 100); // Convert centipawns to pawns
+                scoreText = data.score > 0 ? `+${absScore.toFixed(1)}` : `-${absScore.toFixed(1)}`;
+            }
+            
+            $advice.html(`
+                <div>Best move: <strong>${source} → ${target}</strong></div>
+                ${scoreText ? `<div>Evaluation: <strong>${scoreText}</strong></div>` : ''}
+            `);
+        } else {
+            $advice.html('No analysis available for this position');
         }
     })
     .catch(error => {
         console.error('Error getting advice:', error);
-        $advice.html('Error getting advice: ' + error);
+        if (error.name === 'AbortError') {
+            $advice.html('Request timed out. Please try again.');
+        } else {
+            $advice.html(error.message || 'Error getting move suggestion. Please try again.');
+        }
+        clearHighlights();
     });
 }
 

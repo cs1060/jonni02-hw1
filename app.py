@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
-STOCKFISH_API_URL = "https://stockfish.online/api/v2/stockfish.php"
+LICHESS_API_URL = "https://lichess.org/api/cloud-eval"
 
 @app.route('/')
 def index():
@@ -26,30 +26,44 @@ def get_move():
             
         board = chess.Board(fen)
         
-        # Call Stockfish API v2
-        data = {
-            'fen': fen,
-            'depth': 15,
-            'time': 1000,  # 1 second think time
-            'mode': 'bestmove'
-        }
+        # Handle game-over positions
+        if board.is_game_over():
+            if board.is_checkmate():
+                return jsonify({'move': '', 'score': -10000 if board.turn else 10000, 'status': 'checkmate'}), 200
+            elif board.is_stalemate():
+                return jsonify({'move': '', 'score': 0, 'status': 'stalemate'}), 200
+            else:
+                return jsonify({'move': '', 'score': 0, 'status': 'draw'}), 200
         
-        response = requests.post(STOCKFISH_API_URL, json=data)
-        logging.debug(f"API Response: {response.text}")
+        # Call Lichess API with timeout
+        response = requests.get(
+            LICHESS_API_URL,
+            params={'fen': fen},
+            headers={'Accept': 'application/json'},
+            timeout=3  # 3 second timeout
+        )
         
         if response.status_code != 200:
-            logging.error(f"Stockfish API error: {response.text}")
-            return jsonify({'error': 'Failed to get move from Stockfish API'}), 503
+            logging.error(f"Lichess API error: {response.text}")
+            return jsonify({'error': 'Failed to get move from Lichess API'}), 503
             
         data = response.json()
-        if not data.get('success'):
-            return jsonify({'error': data.get('data', 'Unknown error')}), 400
+        pvs = data.get('pvs', [])
+        if not pvs:
+            return jsonify({'error': 'No analysis available'}), 400
             
-        move_data = data.get('data', {})
-        best_move = move_data.get('bestmove')
-        score = move_data.get('score', 0)
+        best_move = pvs[0].get('moves', '').split()[0]  # Get first move from PV
+        score = pvs[0].get('cp', 0)  # Centipawns score
         
         if best_move:
+            # Validate the move is legal
+            try:
+                move = chess.Move.from_uci(best_move)
+                if move not in board.legal_moves:
+                    return jsonify({'error': 'Invalid move returned by API'}), 400
+            except ValueError:
+                return jsonify({'error': 'Invalid move format returned by API'}), 400
+                
             return jsonify({
                 'move': best_move,
                 'score': score
@@ -57,6 +71,12 @@ def get_move():
         else:
             return jsonify({'error': 'No valid moves found'}), 400
             
+    except requests.Timeout:
+        logging.error("Lichess API timeout")
+        return jsonify({'error': 'API request timed out'}), 503
+    except requests.RequestException as e:
+        logging.error(f"Request error: {str(e)}")
+        return jsonify({'error': 'Failed to connect to Lichess API'}), 503
     except Exception as e:
         logging.error(f"Error in get_move: {str(e)}")
         return jsonify({'error': str(e)}), 500

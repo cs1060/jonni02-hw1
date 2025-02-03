@@ -1,13 +1,28 @@
-# Chess Game with Stockfish Integration
+# Chess Game with AI Integration
 
-A web-based chess game that allows players to get move suggestions from the Stockfish chess engine.
+A web-based chess game that allows players to get move suggestions from the Lichess Cloud Evaluation API.
 
 ## Features
 
 - Playable chess game with a modern interface
 - Move validation and game state tracking
-- Stockfish integration for move suggestions
+- AI assistance powered by Lichess Cloud Evaluation
 - Simple and intuitive controls
+- Dark/Light theme toggle
+- Comprehensive test suite
+
+## Contributors
+
+- **Jon Syla**
+  - Worked on: Complete application development including:
+    - Frontend UI with dark/light theme support
+    - Backend integration with Lichess Cloud Evaluation API
+    - Comprehensive test suite implementation
+    - Security vulnerability fixes
+  - Time spent: 5.5 hours
+  - Challenges encountered:
+    - AI assistance precision: Ensuring the AI followed instructions accurately
+    - Result verification: Need for thorough testing to confirm AI-implemented changes worked as intended
 
 ## Deployment Instructions
 
@@ -40,39 +55,24 @@ The app will be automatically deployed and available at your Render URL.
    ```
 4. Visit `http://localhost:5000` in your browser
 
-## Setup
+## Running Tests
 
-1. Install the required dependencies:
+Run the test suite:
 ```bash
-pip install -r requirements.txt
+python -m pytest tests/test_app.py -v
 ```
-
-2. Create a `.env` file based on `.env.example` and add your Stockfish API key:
-```bash
-cp .env.example .env
-```
-
-3. Edit the `.env` file and replace `your_api_key_here` with your actual Stockfish API key.
-
-## Running the Application
-
-Run the Flask application:
-```bash
-python app.py
-```
-
-The game will be available at `http://localhost:5000`
 
 ## How to Play
 
 1. The game starts with white to move
 2. Drag and drop pieces to make moves
-3. Click the "Get Stockfish Advice" button to get move suggestions
-4. Use the "Reset Board" button to start a new game
+3. Click the "Get AI Advice" button to get move suggestions from Lichess
+4. Use the "New Game" button to start a new game
 
 ## Technologies Used
 
 - Flask (Python web framework)
 - chess.js (Chess logic)
 - chessboard.js (Chess board UI)
-- Stockfish API (Chess engine integration)
+- Lichess Cloud Evaluation API (Chess engine integration)
+- pytest (Testing framework)

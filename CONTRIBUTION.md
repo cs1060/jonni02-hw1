@@ -4,7 +4,7 @@
 https://github.com/cs1060/jonni02-hw1
 
 ## Contributor
-- Name: Jonni Syla
+- Name: Jon Syla
 
 ## Work Completed
 1. Created a web-based chess game with AI assistance

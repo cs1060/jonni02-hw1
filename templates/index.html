@@ -2,38 +2,45 @@
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chess Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play chess with AI assistance</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
-    
     <div class="container">
-        <header class="header">
-            <h1 class="title">Play chess with AI assistance</h1>
-            <p class="subtitle">Made with ❤️ by Jon • AI-Powered</p>
+        <header>
+            <h1>Play chess with AI assistance</h1>
+            <p class="subtitle">AI assistance is powered by Lichess Cloud Evaluation</p>
+            <button id="darkModeToggle" class="theme-toggle">
+                <span class="light-icon">☀️</span>
+                <span class="dark-icon">🌙</span>
+            </button>
         </header>
 
-        <div class="game-controls">
-            <button id="resetBtn" class="control-btn">New Game</button>
-            <button id="getAdviceBtn" class="control-btn primary">Get AI Advice</button>
-        </div>
+        <main class="game-container">
+            <div class="game-controls">
+                <button id="resetBtn" class="control-btn">New Game</button>
+                <button id="getAdviceBtn" class="control-btn primary">Get AI Advice</button>
+            </div>
 
-        <div class="board-section">
-            <div id="board"></div>
-        </div>
-
-        <div class="game-info">
-            <div id="status"></div>
-            <div id="advice"></div>
-        </div>
-
-        <footer>
-            <p>Powered by Stockfish Chess Engine</p>
-        </footer>
+            <div class="game-layout">
+                <div class="board-section">
+                    <div id="board"></div>
+                </div>
+                <div class="side-panel">
+                    <div class="status-section">
+                        <h2>Game Status</h2>
+                        <div id="status" class="status-text"></div>
+                    </div>
+                    <div class="advice-section">
+                        <h2>AI Analysis</h2>
+                        <div id="advice" class="advice-text">Click "Get AI Advice" for move suggestions</div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -41,4 +48,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
+<footer style="text-align: center; margin-top: 20px;">
+    Made by Jon with the help of AI ❤️
+</footer>
 </html>
