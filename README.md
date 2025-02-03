@@ -2,6 +2,8 @@
 
 A web-based chess game that allows players to get move suggestions from the Lichess Cloud Evaluation API.
 
+Live Demo: [https://jonni02-hw1.onrender.com](https://jonni02-hw1.onrender.com)
+
 ## Features
 
 - Playable chess game with a modern interface
@@ -19,30 +21,13 @@ A web-based chess game that allows players to get move suggestions from the Lich
     - Backend integration with Lichess Cloud Evaluation API
     - Comprehensive test suite implementation
     - Security vulnerability fixes
+    - Deployment to Render.com
   - Time spent: 5.5 hours
   - Challenges encountered:
     - AI assistance precision: Ensuring the AI followed instructions accurately
     - Result verification: Need for thorough testing to confirm AI-implemented changes worked as intended
 
-## Deployment Instructions
-
-### Deploy to Render.com
-
-1. Create a Render account at https://render.com
-2. Click "New +" and select "Web Service"
-3. Connect your GitHub repository
-4. Fill in the following settings:
-   - Name: chess-game (or your preferred name)
-   - Environment: Python
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn app:app`
-   - Python Version: 3.9
-
-5. Click "Create Web Service"
-
-The app will be automatically deployed and available at your Render URL.
-
-### Local Development
+## Local Development
 
 1. Clone the repository
 2. Install dependencies:
